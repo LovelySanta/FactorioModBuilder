@@ -1,5 +1,5 @@
 {
-  "name": "Mod builder",
+  "name": "ModBuilder",
   "version": "0.1.0",
   "description": "Automated way of creating .zip folder and putting it in the mods folder of Factorio.",
   "license": "SEE LICENSE IN LICENCE.txt",
@@ -8,6 +8,6 @@
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-clean": "^0.4.0",
     "gulp-debug": "^4.0.0",
-    "gulp-zip": "latest"
+    "gulp-zip": "^4.1.0"
   }
 }

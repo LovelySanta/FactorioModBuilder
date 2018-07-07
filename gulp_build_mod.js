@@ -1,23 +1,16 @@
 // example https://pastebin.com/embed_iframe/faVj8bXA
 
-var gulp        = require("gulp");
-var gulpClean   = require("gulp-clean");
-var gulpDebug   = require("gulp-debug");
+var gulp         = require("gulp");
+var gulpClean    = require("gulp-clean");
+var gulpDebug    = require("gulp-debug");
+var gulpZip      = require("gulp-zip");
 
-var fs          = require("fs");
+var fs           = require("fs");
+var childProcess = require("child_process")
 
-let factorioFolder = process.env.APPDATA + "\\" + fs.readdirSync(process.env.APPDATA).filter(function(d) {return d.indexOf('Factorio') > -1}).join("/");
+let factorioDataFolder = process.env.APPDATA + "\\" + fs.readdirSync(process.env.APPDATA).filter(function(d) {return d.indexOf('Factorio') > -1}).join("/");
+let factorioInstallFolder = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio";
 let modName, modVersion;
-
-gulp.task('log1', () => {
-  console.log("\n== Launching Factorio.exe ==");
-  console.log("todo\n");
-
-  return new Promise(function(resolve, reject) {
-    resolve();
-  });
-
-});
 
 
 
@@ -51,22 +44,43 @@ gulp.task("build_modinfo", () => {
 gulp.task("build_remove_old_build", () => {
   console.log("\n== Removing old builds ==");
 
-  return gulp.src(factorioFolder+"\\mods\\"+modName+"_*.zip", {read:false})
+  return gulp.src(factorioDataFolder+"\\mods\\"+modName+"_*.zip", {read:false})
              .pipe(gulpDebug())
              .pipe(gulpClean({force:true}));
 });
 
 
 
-gulp.task("build_create_directory", () => {
-  console.log("\n== Build directory ==")
+gulp.task("build_create_tmp_directory", () => {
+  console.log("\n== Build mod ==")
 
   return gulp.src(["../**/*",
                    "!../**/.*",
                    "!../{build,build/**}",
     ],  {base: '..'})
     .pipe(gulpDebug())
-    .pipe(gulp.dest("tmp/" + modName + "_" + modVersion));
+    .pipe(gulp.dest("tmp/"+modName+"_"+modVersion));
+});
+
+
+
+gulp.task("build_remove_tmp_directory", () => {
+  console.log("\n== Build cleanup ==")
+
+  return gulp.src("tmp/"+modName+"_"+modVersion+"/", {read:false})
+             .pipe(gulpClean());
+});
+
+
+
+gulp.task("build_create_zip", () => {
+  console.log("\n== Creating zip file ==")
+
+  return gulp.src("tmp/**/*")
+             .pipe(gulpZip(modName+"_"+modVersion+".zip"))
+             //.pipe(gulpDebug())
+             .pipe(gulp.dest(factorioDataFolder+"/mods/"))
+             .pipe(gulpDebug())
 });
 
 
@@ -75,13 +89,22 @@ gulp.task("build_create_directory", () => {
 gulp.task("build_process", gulp.series(
   "build_modinfo",
   "build_remove_old_build",
-  "build_create_directory"
+  "build_create_tmp_directory",
+  "build_create_zip",
+  "build_remove_tmp_directory"
 ));
+
+
+
+gulp.task("launch_factorio", () => {
+    console.log("\n== Starting Factorio ==");
+    return childProcess.spawn(factorioInstallFolder+"/bin/x64/factorio.exe", [], { stdio: 'inherit' });
+});
 
 
 
 // Main program
 gulp.task("main", gulp.series(
   "build_process",
-  "log1"
+  "launch_factorio"
 ));
