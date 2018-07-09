@@ -42,7 +42,7 @@ gulp.task("build_modinfo", () => {
 
 
 gulp.task("build_remove_old_build", () => {
-  console.log("\n== Removing old builds ==");
+  //console.log("\n== Removing old builds ==");
 
   return gulp.src(factorioDataFolder+"\\mods\\"+modName+"_*.zip", {read:false})
              .pipe(gulpDebug())
@@ -51,7 +51,7 @@ gulp.task("build_remove_old_build", () => {
 
 
 
-gulp.task("build_create_tmp_directory", () => {
+gulp.task("build_create_tmp_dir", () => {
   console.log("\n== Build mod ==")
 
   return gulp.src(["../**/*",
@@ -64,7 +64,7 @@ gulp.task("build_create_tmp_directory", () => {
 
 
 
-gulp.task("build_remove_tmp_directory", () => {
+gulp.task("build_remove_tmp_dir", () => {
   console.log("\n== Build cleanup ==")
 
   return gulp.src("tmp/"+modName+"_"+modVersion+"/", {read:false})
@@ -87,11 +87,13 @@ gulp.task("build_create_zip", () => {
 
 // Task building the zip file
 gulp.task("build_process", gulp.series(
-  "build_modinfo",
-  "build_remove_old_build",
-  "build_create_tmp_directory",
+  gulp.parallel(
+    "build_remove_old_build",
+    "build_modinfo",
+  ),
+  "build_create_tmp_dir",
   "build_create_zip",
-  "build_remove_tmp_directory"
+  "build_remove_tmp_dir"
 ));
 
 
