@@ -20,8 +20,8 @@ echo == Installing gulp-zip ==
 cmd /c npm install --save-dev "gulp-zip"
 echo.
 echo == Installing gulp ==
-cmd /c npm install -g "gulpjs/gulp#4.0"
-cmd /c npm install --save-dev "gulpjs/gulp.git#4.0"
+cmd /c npm install -g "gulp"
+cmd /c npm install --save-dev "gulp"
 echo.
 
 pause
